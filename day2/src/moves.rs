@@ -25,11 +25,11 @@ pub const ROCK: Move = Move {
 };
 
 pub const PAPER: Move = Move {
-   kind: MoveKind::Paper,
-   draws: MoveKind::Paper,
-   beats: MoveKind::Rock,
-   losses: MoveKind::Scissor,
-   points: 2,
+    kind: MoveKind::Paper,
+    draws: MoveKind::Paper,
+    beats: MoveKind::Rock,
+    losses: MoveKind::Scissor,
+    points: 2,
 };
 
 pub const SCISSOR: Move = Move {
@@ -40,7 +40,6 @@ pub const SCISSOR: Move = Move {
     points: 3,
 };
 
-
 pub fn move_map() -> HashMap<String, Move> {
     HashMap::from([
         (String::from("A"), ROCK),
@@ -49,5 +48,13 @@ pub fn move_map() -> HashMap<String, Move> {
         (String::from("Y"), PAPER),
         (String::from("C"), SCISSOR),
         (String::from("Z"), SCISSOR),
+    ])
+}
+
+pub fn move_map_by_kind() -> HashMap<MoveKind, Move> {
+    HashMap::from([
+        (MoveKind::Rock, ROCK),
+        (MoveKind::Paper, PAPER),
+        (MoveKind::Scissor, SCISSOR),
     ])
 }
