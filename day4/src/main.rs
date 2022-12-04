@@ -3,25 +3,23 @@ fn main() {
     println!("Part 2 Answer: {}", solution(2));
 }
 
+fn get_section(elf: &str) -> Vec<i32> {
+    let sections: Vec<i32> = elf.split("-")
+        .map(|x| x.parse::<i32>().unwrap())
+        .collect::<Vec<i32>>();
+    return (
+        sections[0]..sections[1] + 1
+    ).collect::<Vec<i32>>();
+}
 
 fn solution(part: i8) ->i32 {
-    // Outputs a vector where an element 
-    // is 1 if overlap else element is 0
-    let elve_pair_is_bad = include_str!("./input.prod")
-        .split("\n")
-        .filter(|&x| !x.is_empty())
+    return include_str!("./input.prod")
+        .split("\n").filter(|&x| !x.is_empty())
         .map(|elf_pair| {
             let (elf_one, elf_two) = elf_pair.split_once(",").unwrap();
 
-            let mut elf_one_sections: Vec<i32> = elf_one.split("-")
-                .map(|x| x.parse::<i32>().unwrap())
-                .collect::<Vec<i32>>();
-            elf_one_sections = (elf_one_sections[0]..elf_one_sections[1] + 1).collect::<Vec<i32>>();
-
-            let mut elf_two_sections: Vec<i32> = elf_two.split("-")
-                .map(|x| x.parse::<i32>().unwrap())
-                .collect::<Vec<i32>>();
-            elf_two_sections = (elf_two_sections[0]..elf_two_sections[1] + 1).collect::<Vec<i32>>();
+            let elf_one_sections: Vec<i32> = get_section(elf_one);
+            let elf_two_sections: Vec<i32> = get_section(elf_two);
 
             if part == 1 {
                 // Part one solution (total overlap of sections)
@@ -39,9 +37,6 @@ fn solution(part: i8) ->i32 {
                 }
             }
             return 0;
-        })
-        .collect::<Vec<i32>>();
-
-    elve_pair_is_bad.iter().sum::<i32>()
+        }).sum::<i32>();
 }
 
