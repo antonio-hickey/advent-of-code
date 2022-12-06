@@ -4,6 +4,7 @@
 
 fn main() {
     println!("Part 1 Answer: {}", solution(1));
+    println!("Part 2 Answer: {}", solution(2));
 }
 
 fn solution(part: i8) -> String {
@@ -27,23 +28,34 @@ fn solution(part: i8) -> String {
     }
 
 
-    for t in _instructions.lines() {
-        let instructions_split = t.split(" ").collect::<Vec<&str>>();
+    for instruction in _instructions.lines() {
+        let instructions_split = instruction.split(" ").collect::<Vec<&str>>();
 
         let n_crates = instructions_split[1].parse::<i32>().unwrap();
         let from_stack_id = instructions_split[3].parse::<i32>().unwrap() - 1;
         let to_stack_id = instructions_split[5].parse::<i32>().unwrap() - 1;
 
 
-        for _ in 0..n_crates {
-            let mut crate_to_move = String::new();
-            if stacks[from_stack_id as usize].len() == 1 {
-                crate_to_move = stacks[from_stack_id as usize].pop().unwrap();
-            } else {
-                crate_to_move = stacks[from_stack_id as usize].remove(0 as usize);
-            }
+        if part == 1 {
+            // Part one solution (moving one crate at a time)
+            for _ in 0..n_crates {
+                let mut _crate_to_move = String::new();
+                if stacks[from_stack_id as usize].len() == 1 {
+                    _crate_to_move = stacks[from_stack_id as usize].pop().unwrap();
+                } else {
+                    _crate_to_move = stacks[from_stack_id as usize].remove(0 as usize);
+                }
 
-            stacks[to_stack_id as usize].insert(0 as usize, crate_to_move);
+                stacks[to_stack_id as usize].insert(0 as usize, _crate_to_move);
+            }
+        } else {
+            // Part two solution (moving multiple crates at a time)
+            let crates_to_move = stacks[from_stack_id as usize]
+                .drain(0 as usize..n_crates as usize)
+                .collect::<Vec<String>>();
+
+            let target_stack = stacks[to_stack_id as usize].clone();
+            stacks[to_stack_id as usize] = [crates_to_move, target_stack].concat();
         }
     }
 
