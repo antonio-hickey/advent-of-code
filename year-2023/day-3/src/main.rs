@@ -10,6 +10,10 @@ fn main() {
     // Solve for part one
     let part_one = solution(&input, 1);
     println!("{part_one}");
+
+    // Solve for part two
+    let part_two = solution(&input, 2);
+    println!("{part_two}");
 }
 
 /// Function to solve for both parts of the puzzle
@@ -46,27 +50,60 @@ fn solution(input: &str, part: i8) -> i32 {
                     // The character is a symbol, so insert a new entry in
                     // engine schematic symbols hashset with it's coordinates (x, y)
                     engine_schematic.symbols.insert((x as i32, y as i32));
+                    if char == '*' {
+                        engine_schematic.gears.insert((x as i32, y as i32));
+                    }
                 }
             }
         }
     }
 
-    // * Solve for part one of the puzzle *
-    // Iterate over each possible part number in the engine schematic
-    // and filter out the ones that are not adjacent to a symbol by
-    // intersecting number coordinates with the hash-set of symbol
-    // coordinates. Finally summing up all the symbol adjacent part numbers.
-    engine_schematic
-        .part_numbers
-        .iter()
-        .filter(|num| {
-            num.adjacent_coords
-                .intersection(&engine_schematic.symbols)
-                .next()
-                .is_some()
-        })
-        .map(|num| num.number)
-        .sum::<i32>()
+    match part {
+        1 => {
+            // * Solve for part one of the puzzle *
+            // Iterate over each possible part number in the engine schematic
+            // and filter out the ones that are not adjacent to a symbol by
+            // intersecting number coordinates with the hash-set of symbol
+            // coordinates. Finally summing up all the symbol adjacent part numbers.
+            engine_schematic
+                .part_numbers
+                .iter()
+                .filter(|num| {
+                    num.adjacent_coords
+                        .intersection(&engine_schematic.symbols)
+                        .next()
+                        .is_some()
+                })
+                .map(|num| num.number)
+                .sum::<i32>()
+        }
+        2 => {
+            // * Solve for part two of the puzzle *
+            // Iterate over the gears in the engine schematic filtering for only gears
+            // with 2 part numbers adjacent to it and calculating the product of the 2
+            // adjacent numbers and then finally summing up all the products.
+            engine_schematic
+                .gears
+                .iter()
+                .filter_map(|gear| {
+                    let matches: Vec<i32> = engine_schematic
+                        .part_numbers
+                        .iter()
+                        .filter(|num| num.adjacent_coords.contains(gear))
+                        .take(2)
+                        .map(|num| num.number)
+                        .collect();
+
+                    if matches.len() == 2 {
+                        Some(matches[0] * matches[1])
+                    } else {
+                        None
+                    }
+                })
+                .sum()
+        }
+        _ => panic!("only 2 parts brooooo"),
+    }
 }
 
 /// A representation of the engine schematic data
@@ -75,6 +112,7 @@ fn solution(input: &str, part: i8) -> i32 {
 struct EngineSchematic {
     part_numbers: Vec<PartNumber>,
     symbols: HashSet<(i32, i32)>,
+    gears: HashSet<(i32, i32)>,
 }
 
 /// A representation of the part numbers in the engine
