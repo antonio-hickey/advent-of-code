@@ -1,67 +1,83 @@
 /* Day - 4: Scratchcards */
 
-use std::{collections::HashSet, fs};
+use std::fs;
 
 fn main() {
     // Read puzzle input into string
     let input = fs::read_to_string("./puzzle_data.txt").expect("some puzzle input data");
 
-    // Solve for part one
-    let part_one = solution(&input, 1);
-    println!("{part_one}");
+    // Solve for part one and two
+    println!("part one: {}", solution(&input, 1));
+    println!("part two: {}", solution(&input, 2));
 }
 
 /// Function to solve for both parts of the puzzle
 fn solution(input: &str, part: i8) -> i32 {
-    input
-        .lines()
-        .map(|line| {
-            // Each scratchcard defaults to 0 points
-            let mut card_points: i32 = 0;
+    match part {
+        1 => {
+            /* Solve for part one of the puzzle */
+            // Calculate the points a card is worth, where every number won
+            // after the first doubles in amount of points.
+            input
+                .lines()
+                .map(|line| {
+                    let scratchcard = Scratchcard::from_line(line);
+                    let matching_numbers = scratchcard
+                        .actual_numbers
+                        .iter()
+                        .filter(|&n| scratchcard.winning_numbers.contains(n))
+                        .count();
 
-            // Split the line (scratchcard) into 2 parts (1 for winning numbers, and another for actual numbers)
-            let card_parts: Vec<&str> = line.split(':').last().unwrap().split('|').collect();
-            if let (Some(winning_numbers_part), Some(actual_numbers_part)) =
-                (card_parts.get(0), card_parts.get(1))
-            {
-                // These are the numbers that will win for the scratchcard
-                let winning_numbers: Vec<i32> = winning_numbers_part
-                    .split_whitespace()
-                    .filter_map(|number| number.parse().ok())
-                    .collect();
-
-                // These are the actual numbers are scratchcard has
-                let actual_numbers: Vec<i32> = actual_numbers_part
-                    .split_whitespace()
-                    .filter_map(|number| number.parse().ok())
-                    .collect();
-
-                // These are the actual numbers our card has that match a winning number
-                let numbers_won: Vec<i32> = actual_numbers
-                    .iter()
-                    .filter(|&number| winning_numbers.contains(number))
-                    .map(|&number| number)
-                    .collect();
-
-                match part {
-                    1 => {
-                        /* Solve for part one of the puzzle */
-                        // Calculate the points a card is worth, where every number won
-                        // after the first doubles in amount of points.
-                        if !numbers_won.is_empty() {
-                            card_points = 1;
-
-                            // Handle the doubling of points if more than 1 number won
-                            if numbers_won.len() > 1 {
-                                card_points *= 2i32.pow((numbers_won.len() - 1) as u32);
-                            }
-                        }
+                    if matching_numbers > 0 {
+                        2i32.pow(matching_numbers as u32 - 1)
+                    } else {
+                        0
                     }
-                    2 => todo!(),
-                    _ => panic!("there's only 2 parts brooooo"),
+                })
+                .sum()
+        }
+        2 => {
+            /* Solve for part one of the puzzle */
+            // Compute a multiplier effect based on how many numbers are won
+            // for each scratchcard and then sum up the multipliers.
+            let mut multiplier = vec![1; input.lines().count()];
+            for (idx, line) in input.lines().enumerate() {
+                let scratchcard = Scratchcard::from_line(line);
+                let matching_numbers = scratchcard
+                    .actual_numbers
+                    .iter()
+                    .filter(|&n| scratchcard.winning_numbers.contains(n))
+                    .count();
+
+                for i in (idx + 1)..(idx + 1 + matching_numbers) {
+                    multiplier[i] += multiplier[idx];
                 }
             }
-            card_points
-        })
-        .sum()
+            multiplier.iter().sum::<usize>() as i32
+        }
+        _ => panic!("there's only 2 parts brooooo"),
+    }
+}
+
+/// A model of the scratchcard the elf has
+struct Scratchcard {
+    winning_numbers: Vec<i32>,
+    actual_numbers: Vec<i32>,
+}
+impl Scratchcard {
+    /// Parse a puzzle input line into a `Scratchcard`
+    fn from_line(line: &str) -> Self {
+        let scratchcard_parts: Vec<&str> = line.split(':').last().unwrap().split('|').collect();
+
+        Self {
+            winning_numbers: scratchcard_parts[0]
+                .split_whitespace()
+                .filter_map(|number| number.parse().ok())
+                .collect(),
+            actual_numbers: scratchcard_parts[1]
+                .split_whitespace()
+                .filter_map(|number| number.parse().ok())
+                .collect(),
+        }
+    }
 }
