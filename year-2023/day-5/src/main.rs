@@ -7,6 +7,7 @@ fn main() {
     let input = fs::read_to_string("./puzzle_data.txt").expect("some puzzle input data");
 
     println!("part one solution: {}", solution(&input, 1));
+    println!("part two solution: {}", solution(&input, 2));
 }
 
 /// Function to solve for both parts of the puzzle
@@ -31,7 +32,28 @@ fn solution(input: &str, part: i8) -> i64 {
                 .min()
                 .unwrap_or(i64::MAX)
         }
-        2 => todo!(),
+        2 => {
+            /* Part Two Solution */
+            // Iterate over each seed pair range then iterate over all the seeds
+            // in the ith seed range. Recursivly search the maps for a location of the
+            // current seed, while keeping track of the shortest distance to location.
+
+            // TODO: refactor this solution later in a more clevar 
+            //       and efficient way. This solution is a hacky bruteforce 
+            //       solution that took even my super fast computer ~3 minutes 
+            //       to compute lol, so not a good solution but it works. 
+            almanac
+                .seeds
+                .chunks(2)
+                .flat_map(|seed_pair| seed_pair[0]..seed_pair[0]+seed_pair[1])
+                .map(|seed| {
+                    almanac
+                        .maps
+                        .iter()
+                        .fold(seed, |acc, map| map.map_lookup(acc))
+                })
+                .fold(i64::MAX, |min, cur| min.min(cur))
+        },
         _ => panic!("Only 2 parts to the puzzle broooo"),
     }
 }
