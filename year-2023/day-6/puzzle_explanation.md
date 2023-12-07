@@ -45,6 +45,27 @@ In the third race, you could hold the button for at least *11* milliseconds and 
 To see how much margin of error you have, determine **the number of ways you can beat the record in each race**; in this example, if you multiply these values together, you get **288** *(4 * 8 * 9)*.
 
 Determine the number of ways you could beat the record in each race. **What do you get if you multiply these numbers together?**
-* [My Solution]() Iterate over each race, Iterate over each millisecond (time step) in the race to compute each possible strategy I can take to maximize distance and then filter them out by checking if it's greater than the distance to beat for the ith race. Then take a sum of all the possible winning strategies I can take in each race and finally compute a product from it.
+* [My Solution](https://github.com/antonio-hickey/advent-of-code/blob/5d25c8df4947223db9345ee58ede0f8479f4d581/year-2023/day-6/src/main.rs#L18-L37) Iterate over each race, Iterate over each millisecond (time step) in the race to compute each possible strategy I can take to maximize distance and then filter them out by checking if it's greater than the distance to beat for the ith race. Then take a sum of all the possible winning strategies I can take in each race and finally compute a product from it.
   
+Part Two
+---
+
+As the race is about to start, you realize the piece of paper with race times and record distances you got earlier actually just has very bad kerning. There's really **only one race** - ignore the spaces between the numbers on each line.
+
+So, the example from before:
+```
+Time:      7  15   30
+Distance:  9  40  200
+```
+
+...now instead means this:
+```
+Time:      71530
+Distance:  940200
+```
+
+Now, you have to figure out how many ways there are to win this single race. In this example, the race lasts for **`71530` milliseconds** and the record distance you need to beat is **`940200` millimeters**. You could hold the button anywhere from *14* to *71516* milliseconds and beat the record, a total of **71503** ways!
+
+** How many ways can you beat the record in this one much longer race?**
+[My Solution](https://github.com/antonio-hickey/advent-of-code/blob/2e33e0e5c9a695a7d9c6b2c3412470fda38c907d/year-2023/day-6/src/main.rs#L47-L63), same as part one but just without computing a product.
 
