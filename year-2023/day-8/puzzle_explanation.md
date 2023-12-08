@@ -34,4 +34,4 @@ ZZZ = (ZZZ, ZZZ)
 ```
 
 Starting at *AAA*, follow the left/right instructions. **How many steps are required to reach ZZZ?**
-
+* [My Solution](https://github.com/antonio-hickey/advent-of-code/blob/210431c85cd2661bf0709f5f931b3eb788bde552/year-2023/day-8/src/main.rs#L23-L41), Parse the puzzle data into a meaningful model [EscapeMap](https://github.com/antonio-hickey/advent-of-code/blob/210431c85cd2661bf0709f5f931b3eb788bde552/year-2023/day-8/src/main.rs#L51-L93) and then loop over the escape map guide and instructions until the next location is "ZZZ" (our escape point). Where each iteration in the loop is computed based on the previous iteration, and finally counting how many iterations we looped through (our steps).
