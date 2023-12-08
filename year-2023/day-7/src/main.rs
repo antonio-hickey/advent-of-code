@@ -1,14 +1,12 @@
 /* Day - 7: Camel Cards */
 
-use std::{
-    collections::{BTreeMap, HashMap},
-    fs,
-};
+use std::fs;
 
 fn main() {
     // Read puzzle input into string
     let input = fs::read_to_string("./puzzle_data.txt").expect("some puzzle input data");
     println!("part one solution: {}", solution(&input, 1));
+    println!("part two solution: {}", solution(&input, 2));
 }
 
 /// Function to solve for both parts of the puzzle
@@ -31,7 +29,15 @@ fn solution(input: &str, part: i8) -> i64 {
         }
         2 => {
             /* Part Two Solution */
-            todo!()
+            // Same as part 1 solution but sorting by score with jokers included
+            // the hard part of this part of the puzzle was just the parsing of the
+            // puzzle data into something meaningful
+            camel_cards.hands.sort_by(|a, b| a.score_with_joker.cmp(&b.score_with_joker));
+            camel_cards
+                .hands
+                .iter()
+                .enumerate()
+                .fold(0, |acc, (rank, hand)| acc + (rank + 1) as i64 * hand.bid)
         }
         _ => panic!("Only 2 parts to the puzzle broooo"),
     }
@@ -83,15 +89,18 @@ impl CamelCards {
 struct CamelCardHand {
     cards: Vec<Card>,
     score: i64,
+    score_with_joker: i64,
     bid: i64,
 }
 impl CamelCardHand {
     /// Create a new card hand instance
     fn new(hand: &[Card], bid: i64) -> Self {
         let score = Self::score(hand);
+        let score_with_joker = Self::score_with_joker(hand);
         Self {
             cards: hand.to_vec(),
             score,
+            score_with_joker,
             bid,
         }
     }
@@ -102,28 +111,67 @@ impl CamelCardHand {
         let mut cards: Vec<Card> = hand.into();
         cards.sort();
 
+        // Figure out how many joker cards there are in the hand
+        let n_jokers = cards.iter().filter(|card| **card == Card::Joker).count();
+
         // Figure out what kind of hand type each hand is based on the cards
-        let hand_type = if cards[0] == cards[4] {
+        let hand_type = if cards[0].is_equal(cards[4]) {
             CamelCardHandType::FiveOfAKind
-        } else if cards[0] == cards[3] || cards[1] == cards[4] {
-            CamelCardHandType::FourOfAKind
-        } else if (cards[0] == cards[1] && cards[2] == cards[4])
-            || (cards[0] == cards[2] && cards[3] == cards[4])
+        } else if cards[0].is_equal(cards[3]) || cards[1].is_equal(cards[4]) {
+            // Check if theres a joker in the hand that can convert the
+            // hand from a four of a kind to a five of a kind.
+            if n_jokers == 1 {
+                CamelCardHandType::FiveOfAKind
+            } else {
+                CamelCardHandType::FourOfAKind
+            }
+        } else if (cards[0].is_equal(cards[1]) && cards[2].is_equal(cards[4]))
+            || (cards[0].is_equal(cards[2]) && cards[3].is_equal(cards[4]))
         {
+            // A full house cant have a joker by definition
             CamelCardHandType::FullHouse
-        } else if cards[0] == cards[2] || cards[1] == cards[3] || cards[2] == cards[4] {
-            CamelCardHandType::ThreeOfAKind
+        } else if cards[0].is_equal(cards[2]) || cards[1].is_equal(cards[3]) || cards[2].is_equal(cards[4]) {
+            // Match how many jokers there are in the hand to see how much
+            // the 3 of a kind can be upgraded
+            match n_jokers {
+                0 => CamelCardHandType::ThreeOfAKind,
+                1 => CamelCardHandType::FourOfAKind,
+                2 => CamelCardHandType::FiveOfAKind,
+                _ => panic!("no less than 0 and no more than 2 jokers should be possible")
+            }
         } else {
             let pair_count = cards
                 .as_slice()
                 .windows(2)
-                .filter(|pair| pair[0] == pair[1])
+                .filter(|pair| pair[0].is_equal(pair[1]))
                 .count();
-            match pair_count {
-                0 => CamelCardHandType::HighCard,
-                1 => CamelCardHandType::OnePair,
-                2 => CamelCardHandType::TwoPair,
-                _ => panic!("Only 7 types of card hands broooo"),
+
+            if n_jokers == 0 {
+                match pair_count {
+                    0 => CamelCardHandType::HighCard,
+                    1 => CamelCardHandType::OnePair,
+                    2 => CamelCardHandType::TwoPair,
+                    _ => panic!("Only 7 types of card hands broooo")
+                }
+            } else if n_jokers == 1 {
+                match pair_count {
+                    0 => CamelCardHandType::OnePair,
+                    1 => CamelCardHandType::ThreeOfAKind,
+                    2 => CamelCardHandType::FullHouse,
+                    _ => panic!("Only 7 types of card hands broooo"),
+                }
+            } else if n_jokers == 2 {
+                match pair_count {
+                    0 => CamelCardHandType::ThreeOfAKind,
+                    1 => CamelCardHandType::FourOfAKind,
+                    _ => panic!("Only 7 types of card hands broooo"), 
+                }
+            } else if (n_jokers == 3 && pair_count == 1) || n_jokers >= 4 {
+                CamelCardHandType::FiveOfAKind
+            } else if n_jokers == 3 {
+                CamelCardHandType::FourOfAKind
+            } else {
+                CamelCardHandType::HighCard
             }
         };
 
@@ -133,6 +181,20 @@ impl CamelCardHand {
             score = (score << 4) | (*card as usize);
         }
         score as i64
+    }
+
+    /// Compute a score for a hand of cards with jokers which can act
+    /// as wildcards instead of jacks
+    fn score_with_joker(hand: &[Card]) -> i64 {
+        let hand_with_joker: Vec<Card> = hand.iter().map(|card| {
+            if *card == Card::Jack {
+                Card::Joker
+            } else {
+                *card
+            }
+        }).collect();
+
+        Self::score(&hand_with_joker)
     }
 }
 
@@ -152,6 +214,7 @@ enum CamelCardHandType {
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Clone, Copy)]
 /// A useful model of a card in the puzzle
 enum Card {
+    Joker,
     Two,
     Three,
     Four,
@@ -165,4 +228,14 @@ enum Card {
     Queen,
     King,
     Ace,
+}
+impl Card {
+    /// Custom comparison to not count jokers as equal yet
+    fn is_equal(self, other: Card) -> bool {
+        if self == Self::Joker || other == Self::Joker {
+            false
+        } else {
+            self == other
+        }
+    }
 }
