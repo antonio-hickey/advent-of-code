@@ -13,12 +13,38 @@ fn main() {
 fn solution(input: &str, part: i8) -> i64 {
     // parse the puzzle input into a useful model
     let oasis_report = OasisReport::from_puzzle_input(input);
-    println!("{oasis_report:?}");
 
     match part {
         1 => {
             /* Part One Solution */
-            todo!()
+            // Iterate over each historic point (line) in the sand instability sensor
+            // then iterate over each value in the line and aggregate a sequence of
+            // differences between each pair of values. Using it to predict the next
+            // value for this historic point (line), and finally summing up all the
+            // next values to get the puzzle answer.
+            oasis_report
+                .sensor_history
+                .iter()
+                .map(|nums| {
+                    let mut prediction = *nums.last().unwrap();
+                    let mut differences: Vec<i64> =
+                        nums.windows(2).map(|pair| pair[1] - pair[0]).collect();
+                    prediction += differences.last().unwrap();
+
+                    loop {
+                        differences = differences
+                            .windows(2)
+                            .map(|pair| pair[1] - pair[0])
+                            .collect();
+                        if differences[0] == differences[1]
+                            && differences.iter().all(|num| *num == 0)
+                        {
+                            return prediction;
+                        }
+                        prediction += differences.last().unwrap();
+                    }
+                })
+                .sum()
         }
         2 => {
             /* Part Two Solution */
@@ -31,7 +57,7 @@ fn solution(input: &str, part: i8) -> i64 {
 #[derive(Debug)]
 /// A model of the puzzle input data
 struct OasisReport {
-    sensor_history: Vec<Vec<i64>>
+    sensor_history: Vec<Vec<i64>>,
 }
 impl OasisReport {
     /// Parse the puzzle input data into a meaningful model
@@ -43,12 +69,11 @@ impl OasisReport {
             sensor_history: puzzle_data
                 .lines()
                 .map(|line| {
-                    line
-                        .split(' ')
+                    line.split(' ')
                         .map(|number| number.parse().unwrap())
                         .collect()
                 })
-                .collect()
+                .collect(),
         }
     }
 }

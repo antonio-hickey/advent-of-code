@@ -81,4 +81,4 @@ So, the next value of the third history is **68**.
 If you find the next value for each history in this example and add them together, you get **114**.
 
 Analyze your OASIS report and extrapolate the next value for each history. **What is the sum of these extrapolated values?**
-
+* [My Solution](https://github.com/antonio-hickey/advent-of-code/blob/master/year-2023/day-9/src/main.rs#L19-L40), Iterate over each historic point (line) in the sand instability sensor. Then iterate over each value in the line and aggregate a sequence of differences between each pair of values. Using it to predict the next value for this historic point (line), and finally summing up all the next values to get the puzzle answer.
