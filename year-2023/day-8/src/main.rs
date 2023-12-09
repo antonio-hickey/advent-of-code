@@ -6,7 +6,7 @@ fn main() {
     // Read puzzle input into string
     let input = fs::read_to_string("./puzzle_data.txt").expect("some puzzle input data");
     println!("part one solution: {}", solution(&input, 1));
-    //println!("part two solution: {}", solution(&input, 2));
+    println!("part two solution: {}", solution(&input, 2));
 }
 
 /// Function to solve for both parts of the puzzle
@@ -42,7 +42,39 @@ fn solution(input: &str, part: i8) -> i64 {
         }
         2 => {
             /* Part Two Solution */
-            todo!()
+            // loop over all the keys in the map
+            // find the ones that end in A and then
+            // search and exit through them all in the 
+            // same iteration so we can check all the next
+            // locations together ?
+
+            let mut start_locations: Vec<&str> = Vec::new();
+            for key in escape_map.guide.keys() {
+                if key.chars().last().unwrap() == 'A' {
+                    start_locations.push(key)
+                }
+            }
+
+            let exit_scenario = vec![true; start_locations.len()];
+            successors(Some(start_locations), |current_locations| {
+                Some(current_locations.iter().map(|current_location| {
+                    escape_map.guide.get(current_location.to_owned()).map(|(left, right)| {
+                        match instructions.next() {
+                            Some(Direction::Left) => left.as_str(),
+                            Some(Direction::Right) => right.as_str(),
+                            _ => panic!("only 2 possible directions brooo"),
+                        }
+                    }).unwrap()
+                }).collect::<Vec<&str>>())
+            })
+            .take_while(|next_locations| {
+                next_locations
+                    .iter()
+                    .map(|next_location| {
+                        next_location.chars().last().unwrap() == 'Z'
+                    })
+                    .collect::<Vec<bool>>() != exit_scenario
+            }).count() as i64
         }
         _ => panic!("Only 2 parts to the puzzle broooo"),
     }
