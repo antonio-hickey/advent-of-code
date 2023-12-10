@@ -82,3 +82,27 @@ If you find the next value for each history in this example and add them togethe
 
 Analyze your OASIS report and extrapolate the next value for each history. **What is the sum of these extrapolated values?**
 * [My Solution](https://github.com/antonio-hickey/advent-of-code/blob/master/year-2023/day-9/src/main.rs#L19-L40), Iterate over each historic point (line) in the sand instability sensor. Then iterate over each value in the line and aggregate a sequence of differences between each pair of values. Using it to predict the next value for this historic point (line), and finally summing up all the next values to get the puzzle answer.
+
+Part Two 
+---
+
+Of course, it would be nice to have **even more history** included in your report. Surely it's safe to just **extrapolate backwards** as well, right?
+
+For each history, repeat the process of finding differences until the sequence of differences is entirely zero. Then, rather than adding a zero to the end and filling in the next values of each previous sequence, you should instead add a zero to the **beginning** of your sequence of zeroes, then fill in new **first** values for each previous sequence.
+
+In particular, here is what the third example history looks like when extrapolating back in time:
+```
+5  10  13  16  21  30  45
+  5   3   3   5   9  15
+   -2   0   2   4   6
+      2   2   2   2
+        0   0   0
+```
+
+Adding the new values on the left side of each sequence from bottom to top eventually reveals the new left-most history value: **5**.
+
+Doing this for the remaining example data above results in previous values of **-3** for the first history and **0** for the second history. Adding all three new values together produces **2**.
+
+Analyze your OASIS report again, this time extrapolating the previous value for each history. **What is the sum of these extrapolated values?**
+* [My Solution](https://github.com/antonio-hickey/advent-of-code/blob/master/year-2023/day-9/src/main.rs#L50-L76), same as part one but reverse the sensor history lines before computing difference sequences and predicting the next value.
+

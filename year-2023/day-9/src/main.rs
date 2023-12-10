@@ -48,7 +48,32 @@ fn solution(input: &str, part: i8) -> i64 {
         }
         2 => {
             /* Part Two Solution */
-            todo!()
+            // Same as part one but reverse the nums in a sensor history line
+            // before computing a prediction based on difference sequences.
+            oasis_report
+                .sensor_history
+                .iter()
+                .map(|nums| {
+                    let nums = nums.iter().rev().copied().collect::<Vec<i64>>();
+                    let mut prediction = *nums.last().unwrap();
+                    let mut differences: Vec<i64> =
+                        nums.windows(2).map(|pair| pair[1] - pair[0]).collect();
+                    prediction += differences.last().unwrap();
+
+                    loop {
+                        differences = differences
+                            .windows(2)
+                            .map(|pair| pair[1] - pair[0])
+                            .collect();
+                        if differences[0] == differences[1]
+                            && differences.iter().all(|num| *num == 0)
+                        {
+                            return prediction;
+                        }
+                        prediction += differences.last().unwrap();
+                    }
+                })
+                .sum()
         }
         _ => panic!("Only 2 parts to the puzzle broooo"),
     }
