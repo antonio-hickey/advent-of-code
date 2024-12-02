@@ -35,7 +35,23 @@ fn solution(input: &str, part: i8) -> i64 {
         }
         2 => {
             /* Part Two Solution */
-            todo!()
+            let mut similarity_scores: Vec<i64> = Vec::new();
+
+            for left_location in location_lists.left.iter() {
+                let mut right_list_occurance_count = 0;
+
+                // TODO: def a better solution than looping
+                // this for each location in left list O(n^2)
+                for right_location in location_lists.right.iter() {
+                    if right_location == left_location {
+                        right_list_occurance_count += 1;
+                    }
+                }
+
+                similarity_scores.push(left_location * right_list_occurance_count);
+            }
+
+            similarity_scores.iter().sum()
         }
         _ => panic!("Only 2 parts to the puzzle broooo"),
     }
