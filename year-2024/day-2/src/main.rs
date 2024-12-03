@@ -38,7 +38,54 @@ fn solution(input: &str, part: i8) -> i32 {
         }
         2 => {
             /* Part Two Solution */
-            todo!()
+            reactor_reports
+                .into_iter()
+                .filter(|report| {
+                    let mut is_safe = true;
+                    let levels = report.levels.clone();
+
+                    let is_increasing = levels[0] < levels[1];
+                    for i in 0..levels.len() - 1 {
+                        let delta = levels[i + 1] - levels[i];
+                        if (is_increasing && delta < 1)
+                            || (!is_increasing && delta > -1)
+                            || delta.abs() > 3
+                        {
+                            is_safe = false;
+                            break;
+                        }
+                    }
+
+                    if is_safe {
+                        return true;
+                    }
+
+                    for i in 0..levels.len() {
+                        let mut dampened_is_safe = true;
+                        let mut dampened_levels = levels.to_vec();
+                        dampened_levels.remove(i);
+
+                        let is_increasing = dampened_levels[0] < dampened_levels[1];
+
+                        for i in 0..dampened_levels.len() - 1 {
+                            let delta = dampened_levels[i + 1] - dampened_levels[i];
+                            if (is_increasing && delta < 1)
+                                || (!is_increasing && delta > -1)
+                                || delta.abs() > 3
+                            {
+                                dampened_is_safe = false;
+                                break;
+                            }
+                        }
+
+                        if dampened_is_safe {
+                            return true;
+                        }
+                    }
+
+                    false
+                })
+                .count() as i32
         }
         _ => panic!("Only 2 parts to the puzzle broooo"),
     }
@@ -64,4 +111,3 @@ impl ReactorReport {
             .collect()
     }
 }
-

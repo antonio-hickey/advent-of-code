@@ -40,3 +40,26 @@ So, in this example, `2` reports are **safe**.
 Analyze the unusual data from the engineers. **How many reports are safe?**
 
 - [My Solution](https://github.com/antonio-hickey/advent-of-code/blob/2222da9fc8f579d7eac6ed7242609b96f664e51c/year-2024/day-2/src/main.rs#L18-L37), iterate over each report checking for the 2 safety conditions and filtering out any reports which are not safe. Finally just returning the count of reports that made it through the safety filter.
+
+
+## Part Two
+
+The engineers are surprised by the low number of safe reports until they realize they forgot to tell you about the Problem Dampener.
+
+The Problem Dampener is a reactor-mounted module that lets the reactor safety systems **tolerate a single bad level** in what would otherwise be a safe report. It's like the bad level never happened!
+
+Now, the same rules apply as before, except if removing a single level from an unsafe report would make it safe, the report instead counts as safe.
+
+More of the above example's reports are now safe:
+- ```7 6 4 2 1```: **Safe** without removing any level.
+- ```1 2 7 8 9```: **Unsafe** regardless of which level is removed.
+- ```9 7 6 2 1```: **Unsafe** regardless of which level is removed.
+- ```1 3 2 4 5```: **Safe** by removing the second level, 3.
+- ```8 6 4 4 1```: **Unsafe** by removing the second level, 4.
+- ```1 3 6 7 9```: **Safe** without removing any level.
+
+Thanks to the Problem Dampener, ```4``` reports are actually **safe**!
+
+Update your analysis by handling situations where the Problem Dampener can remove a single level from unsafe reports. **How many reports are now safe?**
+
+- [My Solution](https://github.com/antonio-hickey/advent-of-code/blob/433903684b07c2c0e633159d2cb822a0580232a9/year-2024/day-2/src/main.rs#L40-L88), mostly the same as part one but just allowing a one time pass of a bad delta in the reactor level by removing the level from the report and re running safety checks.
