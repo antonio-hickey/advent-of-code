@@ -1,6 +1,8 @@
 Day 2: Red-Nosed Reports
 ===
 
+- https://adventofcode.com/2024/day/2
+
 Fortunately, the first location The Historians want to search isn't a long walk from the Chief Historian's office.
 
 While the Red-Nosed Reindeer nuclear fusion/fission plant appears to contain no sign of the Chief Historian, the engineers there run up to you as soon as they see you. Apparently, they still talk about the time Rudolph was saved through molecular synthesis from a single electron.
@@ -37,3 +39,4 @@ So, in this example, `2` reports are **safe**.
 
 Analyze the unusual data from the engineers. **How many reports are safe?**
 
+- [My Solution](https://github.com/antonio-hickey/advent-of-code/blob/2222da9fc8f579d7eac6ed7242609b96f664e51c/year-2024/day-2/src/main.rs#L18-L37), iterate over each report checking for the 2 safety conditions and filtering out any reports which are not safe. Finally just returning the count of reports that made it through the safety filter.
