@@ -20,3 +20,5 @@ x**mul(2,4)**%&mul[3,7]!@^do_not_**mul(5,5)**+mul(32,64]then(**mul(11,8)****mul(
 Only the four highlighted sections are real `mul` instructions. Adding up the result of each instruction produces **161** (`2*4 + 5*5 + 11*8 + 8*5`).
 
 Scan the corrupted memory for uncorrupted `mul` instructions. **What do you get if you add up all of the results of the multiplications?**
+
+- [My Solution](), This one is really just a parsing puzzle 😒. I loop through the corrupted memory collecting mul instructions as long as they fit certain conditions. First I go through each occurrence of "mul" and check the size of it. The max parameter size is 3 digits so 999 meaning the max length of a valid mul instruction is 12 `mul(999,999)` = 12 chars and the min length is `mul(1,1)` = 8 chars. Then I grab the parameter space of the instruction (the digits in between "(" and ")" ex: `"999,999"`), and split that section by `","` and try to parse them into integers as if they don't parse then it's not a valid instruction. When finished I have a vector of all the valid mul op's and can just compute the product of each one and then sum up all those products for an answer to the puzzle.
