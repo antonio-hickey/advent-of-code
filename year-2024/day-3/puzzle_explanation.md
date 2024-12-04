@@ -21,4 +21,27 @@ Only the four highlighted sections are real `mul` instructions. Adding up the re
 
 Scan the corrupted memory for uncorrupted `mul` instructions. **What do you get if you add up all of the results of the multiplications?**
 
-- [My Solution](https://github.com/antonio-hickey/advent-of-code/blob/29cae2359b9ca0946e230b1790989f67a63600db/year-2024/day-3/src/main.rs#L13-L83), This one is really just a parsing puzzle 😒. I loop through the corrupted memory collecting mul instructions as long as they fit certain conditions. First I go through each occurrence of "mul" and check the size of it. The max parameter size is 3 digits so 999 meaning the max length of a valid mul instruction is 12 `mul(999,999)` = 12 chars and the min length is `mul(1,1)` = 8 chars. Then I grab the parameter space of the instruction (the digits in between "(" and ")" ex: `"999,999"`), and split that section by `","` and try to parse them into integers as if they don't parse then it's not a valid instruction. When finished I have a vector of all the valid mul op's and can just compute the product of each one and then sum up all those products for an answer to the puzzle.
+- [My Solution](https://github.com/antonio-hickey/advent-of-code/blob/666bc097ef557adb22be7b9a44b3fc2f8c8eac62/year-2024/day-3/src/main.rs#L19-L62), This one is really just a parsing puzzle 😒. I loop through the corrupted memory collecting mul instructions as long as they fit certain conditions. First I go through each occurrence of "mul" and check the size of it. The max parameter size is 3 digits so 999 meaning the max length of a valid mul instruction is 12 `mul(999,999)` = 12 chars and the min length is `mul(1,1)` = 8 chars. Then I grab the parameter space of the instruction (the digits in between "(" and ")" ex: `"999,999"`), and split that section by `","` and try to parse them into integers. When finished I have a vector of all the valid mul op's and can just compute the product of each one and then sum up all those products for an answer to the puzzle.
+
+## Part Two
+
+As you scan through the corrupted memory, you notice that some of the conditional statements are also still intact. If you handle some of the uncorrupted conditional statements in the program, you might be able to get an even more accurate result.
+
+There are two new instructions you'll need to handle:
+
+- The `do()` instruction **enables** future `mul` instructions.
+- The `don't()` instruction **disables** future `mul` instructions.
+
+Only the **most recent** `do()` or `don't()` instruction applies. At the beginning of the program, `mul` instructions are **enabled**.
+
+For example:
+
+`xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))`
+
+This corrupted memory is similar to the example from before, but this time the `mul(5,5)` and `mul(11,8)` instructions are **disabled** because there is a `don't()` instruction before them. The other `mul` instructions function normally, including the one at the end that gets re-**enabled** by a `do()` instruction.
+
+This time, the sum of the results is **`48`** (`2*4 + 8*5`).
+
+Handle the new instructions; **what do you get if you add up all of the results of just the enabled multiplications?**
+
+- [My Solution](https://github.com/antonio-hickey/advent-of-code/blob/666bc097ef557adb22be7b9a44b3fc2f8c8eac62/year-2024/day-3/src/main.rs#L65-L138), Mostly the same solution from part one, but more annoying to parse lol. I start by looping through all the `do()` and `don't()` instructions first. Then running a bunch of logic to handle edge cases around these like overlapping instructions. When a valid enabled section is hit it loops through all the `mul` op's in between the `do()` and `don't()` and does the same as part one.
