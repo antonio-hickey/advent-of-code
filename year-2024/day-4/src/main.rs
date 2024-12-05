@@ -34,7 +34,8 @@ fn solution(input: &str, part: i8) -> i32 {
         }
         2 => {
             /* Part Two Solution */
-            todo!()
+            println!("done");
+            1
         }
         _ => panic!("Only 2 parts to the puzzle broooo"),
     }
