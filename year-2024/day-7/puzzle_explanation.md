@@ -36,3 +36,110 @@ The engineers just need the <span class="aoc-glow">total calibration result</spa
 
 Determine which equations could possibly be true. <span class="aoc-glow">What is their total calibration result?</span>
 
+---
+
+[My Solution](https://github.com/antonio-hickey/advent-of-code/blob/master/year-2024/day-7/src/main.rs)
+
+To parse the puzzle data into a meaningful model, I want to extract the target result and all the equation parameters I can add or multiply to get the target result.
+
+```rust
+#[derive(Debug, Default)]
+/// A model of the puzzle input data
+struct Calibration {
+    target: i64,
+    parameters: Vec<i32>,
+}
+```
+
+I do this by going over each line in the data, splitting it first by ":" which gives me 2 sections (target result, and parameters). Finally split the parameters string by " " and collect into a vector of integers.
+
+```rust
+impl Calibration {
+    /// Parse the puzzle input data into a meaningful model
+    fn from_puzzle_input(puzzle_data: &str) -> Vec<Self> {
+        // Fold each line in the data into a instance of `Calibration`
+        // and collect each instance into a `Vec<Calibration>`
+        puzzle_data
+            .lines()
+            .fold(Vec::new(), |mut calibrations, line| {
+                // ex: "190: 10 19" = ["190", " 10 19"]
+                let mut sections = line.split(":");
+
+                // parse the target result into an integer
+                let target: i64 = sections
+                    .next()
+                    .expect("AoC not to have bad data")
+                    .parse()
+                    .expect("AoC not to have bad data");
+
+                // parse the parameters into a vector of integers
+                // (have to trim the first " " and then split by " ")
+                let parameters: Vec<i32> = sections
+                    .next()
+                    .expect("AoC not to have bad data")
+                    .trim_start()
+                    .split(" ")
+                    .map(|param| param.trim().parse().expect("AoC not to have bad data"))
+                    .collect();
+
+                // Collect parsed results into the model
+                calibrations.push(Calibration { target, parameters });
+                calibrations
+            })
+    }
+}
+```
+
+After parsing the data into my model, I iterate over each calibration and filter out 
+invalid calibrations, finally summing up all the valid calibration target results.
+
+```rust
+calibrations
+    .iter()
+    .filter(|calibration| is_valid_calibration(calibration))
+    .map(|calibration| calibration.target)
+    .sum()
+```
+
+The tricky part is determining what values are valid or invalid. You need to try $<span data-tex>2^{n - 1}$</span> possible equations, where <span data-tex>$n$</span> is the number of parameters in the equation. 
+
+So [`81, 40, 27`] for example would have <span data-tex>$2^{3 - 1 = 2} = 4$</span> possible equations:
+- <span data-tex>81 + 40 + 27</span>
+- <span data-tex>81 * 40 + 27</span>
+- <span data-tex>81 * 40 * 27</span>
+- <span data-tex>81 + 40 * 27</span>
+
+From here I keep track of 2 different variables, the current result of the equation and the
+remaining parameters in the equation. Each iteration I compute both the current result + the next parameter and the current result * the next parameter. Finally I check all the possible equation results to see if the target result is contained.
+```rust
+/// Determine if a `Calibration` is valid.
+fn is_valid_calibration(calibration: &Calibration) -> bool {
+    let mut is_valid_calibration = false;
+    let params = &calibration.parameters;
+
+    let mut equation_results = vec![params[0] as i64];
+
+    // go through each parameter in the equation
+    params[1..].iter().for_each(|&param| {
+        let mut next_results = Vec::new();
+
+        // check both operations for each equation result
+        equation_results.iter().for_each(|result| {
+            next_results.push(result + param as i64);
+            next_results.push(result * param as i64);
+        });
+
+        // update all the different equation results
+        equation_results = next_results;
+    });
+
+    // check if any of the equation results
+    // are the calibrations target result
+    if equation_results.contains(&calibration.target) {
+        is_valid_calibration = true;
+    }
+
+    is_valid_calibration
+}
+```
+
